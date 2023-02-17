@@ -1,0 +1,80 @@
+in BAL31
+conda activate clustervw_env
+/autofs/bal31/jhsu/home/projects/HIV/web
+rq worker microblog-tasks --path /autofs/bal31/jhsu/home/projects/HIV/web/
+rq worker clusterv-tasks --path /autofs/bal31/jhsu/home/projects/HIV/web/
+
+
+jhsu@bal31:/autofs/bal31/jhsu/home/projects/HIV/web/redis-stable
+
+./src/redis-server redis.conf
+
+
+
+(nbase) jhsu@bal9:/autofs/bal31/jhsu/home/projects/HIV/web$ flask run
+
+
+
+
+(venv) $ export FLASK_APP=run_clusterv_web.py
+
+
+WSGIDaemonProcess /ClusterVW python-path=/autofs/bal31/jhsu/home/_env/anaconda3/envs/clusterv_web/lib/python3.7/site-packages
+
+
+flask db init
+flask db migrate -m "users table"
+flask db upgrade
+
+
+export FLASK_APP=run_clusterv_web.py
+
+flask run
+
+gunicorn -b localhost:8981 -w 4 run_clusterv_web:app
+
+sudo vim /etc/apache2/sites-available/000-default.conf
+
+
+
+gunicorn -b 0.0.0.0:8981 -w 4 run_clusterv_web:app
+
+
+
+conda activate clustervw
+export FLASK_APP=run_clusterv_web.py
+flask run --host=0.0.0.0
+
+
+
+
+http://bio8.cs.hku.hk:8981/
+
+
+jhsu@bal31:
+
+cd /autofs/bal31/jhsu/home/projects/HIV/web/redis-stable
+./src/redis-server redis.conf
+
+
+jhsu@bal31:
+conda activate /autofs/bal31/jhsu/home/_env/anaconda3/envs/clustervw
+cd /autofs/bal31/jhsu/home/projects/HIV/web
+rq worker clusterv-tasks --path /autofs/bal31/jhsu/home/projects/HIV/web/
+
+in bio8
+export FLASK_APP=run_clusterv_web.py
+/autofs/bal31/jhsu/home/_env/anaconda3/envs/clustervw/bin/python3.7 /autofs/bal31/jhsu/home/_env/anaconda3/envs/clustervw/bin/gunicorn -b 0.0.0.0:8981 -w 4 run_clusterv_web:app
+
+
+
+
+
+export FLASK_APP=run_clusterv_web.py
+flask shell
+User.query.all()
+Task.query.all()
+[db.session.delete(u) for u in Task.query.all()]
+[db.session.delete(u) for u in User.query.all()]
+
+db.session.commit()

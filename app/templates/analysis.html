@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+
+{% block app_content %}
+    
+    
+    <hr>
+    {% if listOfBAM %}
+    <p> Uploaded BAM files: </p>
+    <ul >
+    {% for fn in listOfBAM %}
+    <li> <b>{{ fn }}</b></li>
+    {% endfor %}
+    </ul> 
+    {% endif %}
+
+    <h1>Configuration</h1>
+    <form action="" method="post"  enctype="multipart/form-data">
+        {{ form.hidden_tag() }}
+        <p>
+            {{ form.setting_1.label }}<br>
+            {{ form.setting_1(size=32) }}<br>
+            {% for error in form.setting_1.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+
+
+            {{ form.setting_2.label }}<br>
+            {{ form.setting_2(size=32) }}<br>
+            {% for error in form.setting_2.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+ 
+        <p>{{ form.submit() }}</p>
+    </form>
+
+
+
+
+{% endblock %}
+
+

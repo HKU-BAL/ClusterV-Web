@@ -1,0 +1,74 @@
+{% extends 'bootstrap/base.html' %}
+
+
+
+{% block title %}
+    ClusterV-Web
+{% endblock %}
+{% block styles %}
+{{super()}}
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.1/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.9.3/css/bulma.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.1/css/dataTables.bulma.min.css">
+
+<style type="text/css">
+/*.progress-bar {
+  color: #337ab7;
+}*/
+</style>
+
+{% endblock %}
+
+{% block navbar %}
+    <nav class="navbar navbar-default">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="{{ url_for('index') }}">ClusterV-Web</a>
+            </div>
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav">
+                    <li><a href="{{ url_for('index') }}">Home</a></li>
+                    <li><a href="{{ url_for('upload_data') }}">Configuration</a></li>
+               <!--      <li><a href="{{ url_for('analysis') }}">configuration</a></li> -->
+                    <li><a href="{{ url_for('results') }}">Result</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+{% endblock %}
+
+
+{% block content %}
+    <div class="container" id="g_info" data-bs-spy="scroll" >
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            {% for message in messages %}
+            <div class="alert alert-danger" role="alert">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+        {% endwith %}
+        
+
+        
+        {# application content needs to be provided in the app_content block #}
+        {% block app_content %}{% endblock %}
+
+    </div>
+
+
+
+  <footer class="footer mt-auto py-3 bg-light">
+  <div class="container">
+    <hr>
+    <span class="text-muted">&copy 2023, BSD-3-Clause, developed by HKUCS BAL lab</span>
+  </div>
+</footer>
+
+
+{% endblock %}

@@ -1,0 +1,10 @@
+testing/
+*.swp
+*pyc
+.ipynb_checkpoints/
+ori_testing/
+*.zip
+tmp_zip/
+build_docker
+*/__pycache__/
+__pycache__/

@@ -1,0 +1,247 @@
+{% extends "base.html" %}
+{% block metas %}
+    <meta charset="UTF-8">
+{% endblock %}
+
+{% block styles %}
+{{super()}}
+
+<link rel="stylesheet" href="https://unpkg.com/dropzone@5/dist/min/dropzone.min.css" type="text/css" />
+{% endblock %}
+
+
+
+
+
+{% block app_content %}
+    
+
+
+<div class="container-md">
+    <p class="h2" > 1. Upload BAM data</p>
+    <p> Please upload your BAM files here, the file size is limited to 200 MiB (~50,000 reads).</p>
+    <form method="POST" action='/upload_files' class="dropzone dz-clickable" 
+          id="dropper" enctype="multipart/form-data">
+    </form>
+
+    <form action="" method="post"  enctype="multipart/form-data">
+        <br>
+        <div align="center"><input id="submit" name="submit" type="submit" value="Upload data" class="btn btn-success btn-lg"> </div>
+    </form>
+
+    
+{% if listOfBAM %}
+    <hr >
+    <p class="h2" id="2_config" data-bs-spy="scroll" > 2. Configuration</p>
+
+    <div class="alert alert-info" role="alert"> Optional, generally it is safe to leave all configurations as default, but should note the "Regional BED file" option if your date only covered a specific region.</div>
+<form action="" method="post"  enctype="multipart/form-data">
+   <div class="form-group row">
+    <div class="col-sm-12 ">
+    <label> &#9654; Reference FastA file. <br> Leave this blank for using the HIV-1 (NC_001802.1) reference.</label>
+    <input type="file" class="form-control-file form-control-sm" name="input_fasta_f", accept=".fa, .fasta">
+    </div>
+  </div>
+
+
+  <div class="form-group row">
+    <div class="col-sm-12 ">
+    <label> &#9654; Regional BED file. <br> Leave this blank when using the whole reference regions. Please make sure to provide this BED file if your bam files are from amplicon sequencing.</label>
+
+
+
+    <input type="file" class="form-control-file form-control-sm" name="input_bed_f", , accept=".bed">
+    <div class="alert alert-danger" role="alert"> Providing BED regions is important when your data only covers a specific reference region. <br>
+<a href="{{url_for('download_example_bed')}}">Example</a>  when using amplicon regions of 1413 to 7363:  HIV_1_amplicon_region.bed <br> NC_001802.1 &nbsp &nbsp &nbsp &nbsp 1413 &nbsp &nbsp &nbsp &nbsp 7363</div>
+    </div>
+  </div>
+
+
+  <div class="form-group row">
+
+    <label class="col-sm-5 col-form-label">&#9654;  Filtering INDEL length, set [0] to disable filtering. <br> (INT, recommend using 50, required >=0)</label>
+    <div class="col-sm-2">
+      <input type="indel_l" class="form-control" name="indel_l" value="50">
+    </div>
+  </div>
+
+
+  <div class="form-group row">
+
+    <label class="col-sm-5 col-form-label">&#9654; Top k sutypes to output. <br> (INT, recommend using 25, required >= 2)</label>
+    <div class="col-sm-2">
+      <input type="top_k" class="form-control" name="top_k" value="25">
+    </div>
+  </div>
+
+  <div class="form-group row">
+
+    <label class="col-sm-5 col-form-label">&#9654; Minimum read support for creating a subtype. <br> (INT, recommend using 50, required >= 1)</label>
+    <div class="col-sm-2">
+      <input type="n_min_supports" class="form-control" name="n_min_supports" value="50">
+    </div>
+  </div>
+
+
+  
+  <div class="form-group row">
+
+    <label class="col-sm-5 col-form-label"> &#9654; Flye --genome-size for generating consensus. <br> (STRING, requires using a size lower as defined in the BED file)</label>
+    <div class="col-sm-2">
+      <input type="flye_genome_size" class="form-control" name="flye_genome_size" value="5k">
+    </div>
+  </div>
+
+<div class="form-group row">
+
+    <label class="col-sm-5 col-form-label">&#9654; hivdb URL for query. <br> (STRING)</label>
+    <div class="col-sm-2">
+      <input type="hivdb_url" class="form-control" name="hivdb_url" value="">
+    </div>
+  </div>
+
+  <div class="form-group row">
+            <div align="center"><input id="submit" name="submit" type="submit" value="Configure setting" class="btn btn-success btn-lg"> </div>
+  </div>
+
+{% if all_config.file_ref %}
+
+
+    <hr >
+
+    <div class="container">
+
+        <p class="h2" id="3_run" data-bs-spy="scroll" > 3. Run analysis</p>
+            <div class="row">
+                <div class="col-md-6">
+
+                    {% if listOfBAM %}
+                    <div class="row">
+                        <div class="col-md-12">
+                        <p> &nbsp &#9654; Uploaded BAM files: </p>
+                        <ul class="list-group">
+                        {% for fn in listOfBAM %}
+                        <li class="list-group-item text-primary"> {{ fn }}</li>
+                        {% endfor %}
+                        </ul> 
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if all_config.file_ref %}
+                    <div class="row" >
+                        <div class="col-md-12" >
+                        <p> &nbsp &#9654; Using reference file: </p>
+                        <ul class="list-group">
+                        <li class="list-group-item text-success"> {{ all_config.file_ref }}, config: {{ all_config.ref_contig }}, length:  {{ all_config.ref_len }}</li>
+                        </ul> 
+                        </div>
+                        
+                    </div>
+
+                    {% endif %}
+
+                    {% if all_config.file_bed %}
+                    <div class="row">
+                        <div class="col-md-12">
+
+                        <p> &nbsp &#9654; Using BED file: </p>
+                        <ul class="list-group">
+                        <li class="list-group-item text-success"> {{ all_config.file_bed }}, region: {{ all_config.bed_contig }}:{{ all_config.bed_l }}-{{ all_config.bed_r }}</li>
+                        </ul> 
+
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+
+                {% if all_config %}
+                <div class="col-md-6">
+                        <div class="row">
+                            <div class="col-md-8">
+                            <ul class="list-group">
+                            {% if all_config.indel_l %}
+                            <li class="list-group-item"> indel_l: {{ all_config.indel_l }}</li>
+                            {% endif %}
+
+                            {% if all_config.top_k %}
+                            <li class="list-group-item"> top_k: {{ all_config.top_k }}</li>
+                            {% endif %}
+
+                            {% if all_config.n_min_supports %}
+                            <li class="list-group-item"> n_min_supports: {{ all_config.n_min_supports }}</li>
+                            {% endif %}
+
+                            {% if all_config.flye_genome_size %}
+                            <li class="list-group-item"> flye_genome_size: {{ all_config.flye_genome_size }}</li>
+                            {% endif %}
+
+                            {% if all_config.hivdb_url %}
+                            <li class="list-group-item"> hivdb_url: {{ all_config.hivdb_url }}</li>
+                            {% endif %}
+
+                            </ul> 
+                            </div>
+                        </div>
+                </div>
+                {% endif %}
+
+            </div>
+            <div class="row">
+                <div class="col-md-2">
+                    <a href="{{ url_for('remove_bam') }}" id="remove" class="btn btn-danger btn-sm">Remove all files</a>
+                </div>
+            </div>
+
+        <div class="row">
+            <div align="center"><input id="submit" name="submit" type="submit" value="Run analysis" class="btn btn-success btn-lg"> </div>
+        </div>
+    </div>
+
+  
+</form>
+
+{% endif %}
+{% endif %}
+
+
+<br>
+<br>
+<br>
+
+</div>
+
+
+{% endblock %}
+
+
+{% block scripts %}
+{{super()}}
+<script src="https://unpkg.com/dropzone@5/dist/min/dropzone.min.js"></script>
+<script>
+$(document).ready(function() {
+          // Prevent Dropzone from auto discovering this element:
+          Dropzone.options.myDropzone = false;
+          // This is useful when you want to create the
+          // Dropzone programmatically later
+
+          // Disable auto discover for all elements:
+          Dropzone.autoDiscover = false;
+
+          var myDropzone = new Dropzone("#dropper", {
+            url: "{{ url_for('upload_files') }}",
+            paramName: "file",
+            maxFilesize: 200, // megabytes
+            clickable: true,
+            acceptedFiles: ".bam",
+            maxFiles: 5
+          });
+
+          myDropzone.on("complete", function(file) {
+            console.log(file);
+          });
+        });
+
+</script>
+
+{% endblock %}

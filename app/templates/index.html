@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+
+
+
+{% block app_content %}
+    
+
+    <div class="container">
+    <p class="h2"> ClusterV-Web </p>
+
+    <p>ClusterV-Web is a web application for accurately identifying HIV subtypes from ONT sequencing data. </p>
+    <p>ClusterV-Web takes the alignment BAM file, reference FastA file and target region BED file (defining the target regions) of the HIV data as input, and outputs all found subtypes with their abundance, alignment, variants (SNPs and INDELs), and the drug resistance reports. </p>
+
+
+    <br>
+
+    <div class="row">
+      <div class="col-md-8">
+
+      <figure class="figure">
+
+        <img src="{{ url_for('static', filename='web.png') }}" class="figure-img img-fluid rounded" style="width: 100%">
+        <figcaption class="figure-caption">ClusterV-Web workflow</figcaption>
+        </figure>
+
+        </div>
+
+    </div>
+
+    <br>
+
+    <div class="row">
+      <div class="col-md-8">
+        <figure class="figure">
+
+        <img src="{{ url_for('static', filename='t.png') }}" class="figure-img img-fluid rounded" style="width: 90%">
+        <figcaption class="figure-caption">finding HIV subtypes with ONT data based on ClusterV</figcaption>
+        </figure>
+
+
+        </div>
+    </div>
+
+
+    <br>
+
+    <a class="btn btn-primary" role="button" data-toggle="collapse" href="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+  How to use
+</a>
+
+
+<a class="btn btn-success" href="{{url_for('download_example_data')}}">Download example data (BAM ,FASTA and BED)</a>
+
+
+
+<div class="collapse" id="collapseExample">
+  <div class="well">
+    <img src="{{ url_for('static', filename='s1.png') }}" class="figure-img img-fluid rounded" style="width: 90%">
+        <img src="{{ url_for('static', filename='s2.png') }}" class="figure-img img-fluid rounded" style="width: 90%">
+        <img src="{{ url_for('static', filename='s3.png') }}" class="figure-img img-fluid rounded" style="width: 90%">
+        <img src="{{ url_for('static', filename='s4.png') }}" class="figure-img img-fluid rounded" style="width: 90%">
+        <img src="{{ url_for('static', filename='s5.png') }}" class="figure-img img-fluid rounded" style="width: 90%">
+  </div>
+</div>
+
+
+
+    <br>
+    <hr>
+        
+
+    
+    
+
+
+
+    </div>
+
+
+
+{% endblock %}
+
+
+
+
+

@@ -1,0 +1,330 @@
+{% extends "base.html" %}
+
+
+
+
+
+
+{% block app_content %}
+    
+    
+
+    <div class="container">
+
+        {% if task_in_progression %}
+            <div class="row"><div class="col-md-12"><p> Tasks</p></div></div>
+
+
+            {% for task in task_in_progression %}
+
+            <div class="row">
+                <div class="col-md-3">
+                <p>{{ task.task }}</p>
+                </div>
+
+                <div class="col-md-6">
+            
+
+                    <div class="progress">
+                      <div class="progress-bar progress-bar-success progress-bar-striped active" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" 
+                            id="innerStatus{{ task.task }}" style="width: {{ task.progress }}%">
+                        Loading...
+                      </div>
+                    </div>
+
+                </div>
+            </div>
+            
+            {% endfor %}
+
+            <div class="row"><p><br></p></div>
+            <div class="row"><div class="col-md-12">
+            <form action="" method="post" enctype="multipart/form-data">
+                  <input type ="submit" id="submit" name="action" value="Delete all tasks" class="btn btn-default" >
+                  <input type ="submit" id="submit" name="action" value="Check running stage" class="btn btn-default" >
+             </form>
+             </div></div>
+
+
+        <hr class="border border-primary border-3 opacity-75">
+        {% endif %}
+    </div>
+
+
+
+
+    
+    <!-- <img src="{{url_for('static', filename='all_mutation_and_drug_ressitant_barplot.png')}}" /> -->
+
+    
+
+
+{% if is_have_report %}
+
+<p class="h1"> Analysis results </p>
+
+<a class="btn btn-success" href="{{url_for('download_all_results')}}">Download all results</a>
+
+{% if not task_in_progression %}
+<a class="btn btn-danger" href="{{url_for('delete_all_results')}}">Delete all results</a>
+{% endif %}
+<p><br></p>
+
+<div>
+
+  <!-- Nav tabs -->
+  <ul class="nav nav-tabs" role="tablist">
+        <li role="presentation" class="dropdown">
+            <a class="dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
+              Select report <span class="caret"></span>
+            </a>
+            
+
+            <ul class="dropdown-menu"> 
+                {% for sample in all_report %}
+                <li><a href="#{{ sample.id }}" role="tab" data-toggle="tab">{{ sample.id }}</a></li> 
+                {% endfor %}
+            </ul>
+        </li>
+  </ul>
+
+  <!-- Tab panes -->
+    <div class="tab-content">
+        {% for sample in all_report %}
+        <div role="tabpanel" class="tab-pane container-fluid" id="{{ sample.id }}">
+
+            <p class="h1"> ClusterV report for: {{ sample.id }} </p>
+           
+            <hr>
+
+            <p class="h3"> Subtype report </p>
+
+            <div class="row">
+                <div class="col-md-10">
+
+                <table id="table_id1_{{ sample.id }}" class="table is-striped table-striped">
+                    <thead>
+                        <tr>
+                        {% for element in sample.table_subtype.header %}
+                          <th>{{ element }}</th>
+                        {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in sample.table_subtype.data %}
+                            <tr>
+                            {% for element in row %}
+                                <td>{{ element }}</td>
+                            {% endfor %}
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+                </div>
+            </div>
+
+
+            <hr>
+            <p class="h3"> Mutation report </p>
+
+            <div class="row">
+                
+                <div class="col-md-10">
+
+                <table id="table_id2_{{ sample.id }}" class="table is-striped table-striped">
+                <thead>
+                    <tr>
+                    {% for element in sample.mutation_report.header %}
+                      <th>{{ element }}</th>
+                    {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in sample.mutation_report.data %}
+                        <tr>
+                        {% for element in row %}
+                            <td>{{ element }}</td>
+                        {% endfor %}
+                        </tr>
+                    {% endfor %}
+                </tbody>
+                </table>
+
+                </div>
+            </div>
+
+            <hr>
+            <p class="h3"> Visualization </p>
+                {% if sample.png.abundance_report %}
+
+                    <div class="container text-center">
+                        <div class="row">
+                            <div class="col-md-11">  
+                                <figure class="figure">
+                                  <img src="{{ url_for('static', filename=sample.png.abundance_report) }}" class="figure-img img-fluid rounded" style="width: 90%">
+                                  <figcaption class="figure-caption">Subtypes information</figcaption>
+                                </figure>
+
+                            </div>
+
+                            <br>
+
+                            <div class="col-md-10">
+
+                            {% if sample.png.mutation_report %}
+                                <figure class="figure">
+                                  <img src="{{ url_for('static', filename=sample.png.mutation_report) }}" class="figure-img img-fluid rounded" style="width: 100%">
+                                  <figcaption class="figure-caption">Drug resistance in subtypes</figcaption>
+                                </figure>
+                            {% endif %}
+
+                            </div>
+                            <br>
+
+                            <div class="col-md-6">
+                            {% if sample.png.subtype_report %}
+                                <figure class="figure">
+                                  <img src="{{ url_for('static', filename=sample.png.subtype_report) }}" class="figure-img img-fluid rounded" style="width: 100%">
+                                  <figcaption class="figure-caption">Mutations in subtypes</figcaption>
+                                </figure>
+                            {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                {% endif %}
+            <hr>
+
+        </div>   
+        {% endfor %}
+
+    </div>
+
+</div>
+{% endif %}
+
+
+
+
+
+   
+
+
+
+{% endblock %}
+
+
+{% block scripts %}
+{{super()}}
+
+   <script type="text/javascript" charset="utf8" src="https://code.jquery.com/jquery-3.5.1.js"></script>
+<!--    <script type="text/javascript" charset="utf8" src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js "></script> -->
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.13.1/js/jquery.dataTables.min.js"></script> 
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.13.1/js/dataTables.bulma.min.js"></script> 
+<script>
+$(document).ready(function () {
+    $('#table_id1').DataTable( {
+        paging:         false,
+        "searching": false
+
+} );
+
+    $(".dropdown .dropdown-menu li a")[0].click();
+ 
+
+    {% for sample in all_report %}
+    $('#table_id2_{{ sample.id }}').DataTable( {
+        scrollX:        true,
+        paging:         true,
+        fixedColumns: false
+} );
+
+    {% endfor %}
+
+});
+
+{% if task_in_progression %}
+
+var timeout;
+
+
+function isInt(value) {
+  var x;
+  if (isNaN(value)) {
+    return false;
+  }
+  x = parseFloat(value);
+  return (x | 0) === x;
+}
+
+async function getStatus() {
+
+  let get;
+  
+  try {
+    const res = await fetch("/status");
+    get = await res.json();
+  } catch (e) {
+    console.error("Error: ", e);
+  }
+
+  var is_all_done;
+  is_all_done=1
+
+  var t_code;
+  
+  {% for task in task_in_progression %}
+
+  t_code = get.{{ task.task }};
+  if (t_code.length > 2){
+    document.getElementById("innerStatus{{ task.task }}").innerHTML = t_code;
+      document.getElementById("innerStatus{{ task.task }}").setAttribute("style", "width: 100%");
+      document.getElementById("innerStatus{{ task.task }}").setAttribute("class", "progress-bar progress-bar-danger");
+    }
+    else{
+      if (t_code > 0){
+      document.getElementById("innerStatus{{ task.task }}").innerHTML = t_code + "&percnt;";
+      document.getElementById("innerStatus{{ task.task }}").setAttribute("aria-valuenow", t_code);
+      document.getElementById("innerStatus{{ task.task }}").setAttribute("style", "width: "+t_code+"%");
+
+      }
+      else{
+      document.getElementById("innerStatus{{ task.task }}").innerHTML = "   Waiting for available process .....";
+      document.getElementById("innerStatus{{ task.task }}").setAttribute("style", "width: 100%");
+      }
+
+      if (t_code != 100){
+        is_all_done = 0;
+      }
+      else {
+        document.getElementById("innerStatus{{ task.task }}").innerHTML = " Done";
+      document.getElementById("innerStatus{{ task.task }}").setAttribute("class", "progress-bar progress-bar-success progress-bar-striped");
+
+        }
+      }
+
+
+    
+  {% endfor %}
+    if (is_all_done == 1){
+        clearTimeout(timeout);
+        return false;
+      }
+
+  timeout = setTimeout(getStatus, 1000);
+}
+
+getStatus();
+
+
+
+
+{% endif %}
+
+
+
+
+</script>
+
+{% endblock %}
