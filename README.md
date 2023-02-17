@@ -19,7 +19,6 @@ ClusterV-Web takes the alignment BAM file, reference FastA file and target regio
 
 
 <img src="./app/static/web.png" width = "800" alt="ClusterV web">
-<img src="./app/static/t.png" width = "800" alt="ClusterV">
 
 
 ## Contents
