@@ -117,7 +117,7 @@ def results():
             is_have_report = True
 
             _subtype_tsv_header, _subtype_tsv_data = [], []
-            _new_header = ["sample_id", "subtype_id", "abundance", "subtype_coverage", "snp_counts", "indel_counts", "median_AF"]
+            _new_header = ["sample_id", "quasispecies_id", "abundance", "quasispecies_coverage", "snp_counts", "indel_counts", "median_AF"]
             with open(_sybtype_tsv, 'r') as F:
                 _idx = 0
                 for line in F:
@@ -151,7 +151,7 @@ def results():
         _mutation_report = {}
         if os.path.exists(_mutation_tsv):
             _mutation_tsv_header, _mutation_tsv_data = [], []
-            _mutation_tsv_header = ["subtype", "subtype abundance", "gene", "mutation", "mutation type", "mutation score", "VAF in subtype", "drug class", "drug name", "drug score", "resistance level"]
+            _mutation_tsv_header = ["quasispecies", "quasispecies abundance", "gene", "mutation", "mutation type", "mutation score", "VAF in subtype", "drug class", "drug name", "drug score", "resistance level"]
             with open(_mutation_tsv, 'r') as F:
                 _idx = 0
                 for line in F:
@@ -167,9 +167,9 @@ def results():
                         _drug_score = row[4]
                         _d_level = row[5]
                         _g = row[1]
-                        _m = row[11]
-                        _mt = row[13]
-                        _ms = row[12]
+                        _m = row[12]
+                        _mt = row[14]
+                        _ms = row[13]
                         _s = row[7].split('_')[-1]
                         _sa = row[8]
                         _sa = "%.4f" % (float(_sa))
