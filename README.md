@@ -62,6 +62,6 @@ docker run --name clustervw -d -p 8000:5000 --rm hkubal/clustervw:latest
 
 # the website should be available at your 127.0.0.1:8000, or YOUR IP:8000
 # you can check your IP via `ifconfig`
-# for security concerns, please change `this-is-a-long-secret-key` in ./app/config.py file when building the docker image before you explore your website to the public.
+# for security concerns, please change `this-is-a-long-secret-key` in ./app/config.py file when building the docker image before you expose your website to the public.
 
 ```
