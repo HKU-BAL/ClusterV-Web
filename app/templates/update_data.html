@@ -19,7 +19,7 @@
 
 <div class="container-md">
     <p class="h2" > 1. Upload BAM data</p>
-    <p> Please upload your BAM files here, the file size is limited to 200 MiB (~50,000 reads).</p>
+    <p> Please upload your BAM files here, the file size is limited to 2000 MiB (~500,000 reads).</p>
     <form method="POST" action='/upload_files' class="dropzone dz-clickable" 
           id="dropper" enctype="multipart/form-data">
     </form>
@@ -231,10 +231,10 @@ $(document).ready(function() {
           var myDropzone = new Dropzone("#dropper", {
             url: "{{ url_for('upload_files') }}",
             paramName: "file",
-            maxFilesize: 200, // megabytes
+            maxFilesize: 2000, // megabytes
             clickable: true,
             acceptedFiles: ".bam",
-            maxFiles: 5
+            maxFiles: 50
           });
 
           myDropzone.on("complete", function(file) {

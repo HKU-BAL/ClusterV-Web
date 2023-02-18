@@ -15,7 +15,7 @@ def FileSizeLimit(max_size_in_mb):
 
 class Upload_data(FlaskForm):
     bamfile = StringField('Setting 1', validators=[DataRequired()], default='be happy')
-    uploaded_file = FileField('Input reference file', [FileRequired(), FileSizeLimit(max_size_in_mb=400)])
+    uploaded_file = FileField('Input reference file', [FileRequired(), FileSizeLimit(max_size_in_mb=4000)])
 
     submit = SubmitField('Upload all data')
 
