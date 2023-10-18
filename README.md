@@ -17,7 +17,7 @@ Email: rbluo@cs.hku.hk, jhsu@cs.hku.hk
 ClusterV-Web is a web application for accurately identifying HIV quasispecies from ONT sequencing data base on [ClusterV](https://github.com/HKU-BAL/ClusterV).
 ClusterV-Web takes the alignment BAM file, reference FastA file and target region BED file (defining the target regions) of the HIV data as input, and outputs all found quasispecies with their abundance, alignment, variants (SNPs and INDELs), and the drug resistance reports.
 
-A web application is hosted by BAL and are available at this site ([http://www.bio8.cs.hku.hk/ClusterVW/](http://www.bio8.cs.hku.hk/ClusterVW/)).
+A web application hosted by BAL and is available at this site ([http://www.bio8.cs.hku.hk/ClusterVW/](http://www.bio8.cs.hku.hk/ClusterVW/)).
 
 <img src="./app/static/web.png" width = "800" alt="ClusterV web">
 
