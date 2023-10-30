@@ -89,7 +89,6 @@ html5lib==1.0.1
 humanfriendly==10.0
 hypothesis==4.55.4
 idna==2.8
-igv-jupyter==1.0.0
 igv-notebook==0.2.3
 imageio==2.6.1
 imagesize==1.1.0
@@ -109,18 +108,6 @@ Jinja2==3.1.2
 joblib==0.14.1
 json5==0.8.5
 jsonschema==3.2.0
-jupyter-client==7.3.0
-jupyter-console==6.0.0
-jupyter-contrib-core==0.3.3
-jupyter-contrib-nbextensions==0.5.1
-jupyter-core==4.10.0
-jupyter-highlight-selected-word==0.2.0
-jupyter-latex-envs==1.4.6
-jupyter-nbextensions-configurator==0.4.1
-jupyter-server>=1.17.1
-jupyterlab==3.4.0
-jupyterlab-pygments==0.2.2
-jupyterlab-server==2.13.0
 kaleido==0.2.1
 keyring==20.0.0
 kiwisolver==1.1.0
