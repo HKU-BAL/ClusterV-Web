@@ -40,8 +40,8 @@
             <div class="row"><p><br></p></div>
             <div class="row"><div class="col-md-12">
             <form action="" method="post" enctype="multipart/form-data">
-                  <input type ="submit" id="submit" name="action" value="Delete all tasks" class="btn btn-default" >
                   <input type ="submit" id="submit" name="action" value="Check running stage" class="btn btn-default" >
+                  <input type ="submit" id="submit" name="action" value="Delete all tasks" class="btn btn-default" >
              </form>
              </div></div>
 
@@ -95,6 +95,73 @@
 
             <p class="h1"> ClusterV report for: {{ sample.id }} </p>
            
+            <hr>
+
+
+                {% if sample.all_config %}
+                <p> <a class="btn btn-primary" data-toggle="collapse" href="#collapseConfig{{ sample.id }}" role="button" aria-expanded="false" aria-controls="collapseExample"> Show Configuration </a> </p>
+<div class="collapse" id="collapseConfig{{ sample.id }}">
+  <div class="card card-body">
+                <div class="col-md-6">
+                        <div class="row">
+                            <div class="col-md-8">
+                            <ul class="list-group">
+                            {% if sample.all_config.indel_l %}
+                            <li class="list-group-item"> indel_l: {{ sample.all_config.indel_l }}</li>
+                            {% endif %}
+
+                            {% if sample.all_config.top_k %}
+                            <li class="list-group-item"> top_k: {{ sample.all_config.top_k }}</li>
+                            {% endif %}
+
+                            {% if sample.all_config.n_min_supports %}
+                            <li class="list-group-item"> n_min_supports: {{ sample.all_config.n_min_supports }}</li>
+                            {% endif %}
+
+
+                            {% if sample.all_config.hivdb_url %}
+                            <li class="list-group-item"> hivdb_url: {{ sample.all_config.hivdb_url }}</li>
+                            {% endif %}
+
+                            {% if sample.all_config.min_af%}
+                            <li class="list-group-item"> min_af: {{ sample.all_config.min_af}}</li>
+                            {% endif %}
+
+                            {% if sample.all_config.n_max_coverage%}
+                            <li class="list-group-item"> n_max_coverage: {{ sample.all_config.n_max_coverage}}</li>
+                            {% endif %}
+
+                            {% if sample.all_config.n_of_read_for_consensus%}
+                            <li class="list-group-item"> n_of_read_for_consensus: {{ sample.all_config.n_of_read_for_consensus}}</li>
+                            {% endif %}
+
+                            {% if sample.all_config.flye_genome_size %}
+                            <li class="list-group-item"> flye_genome_size: {{ sample.all_config.flye_genome_size }}</li>
+                            {% endif %}
+
+                            {% if sample.all_config.flye_nano_type%}
+                            <li class="list-group-item"> flye_nano_type: {{ sample.all_config.flye_nano_type}}</li>
+                            {% endif %}
+
+
+                            </ul> 
+                            </div>
+                        </div>
+                </div>
+                {% endif %}
+
+
+            <div class="row">
+                <div class="col-md-10">
+                </div>
+                </div>
+
+
+  </div>
+</div>
+
+
+
             <hr>
 
             <p class="h3"> Subtype report </p>
@@ -194,6 +261,7 @@
                     </div>
 
                 {% endif %}
+            <p class="h5"> Note that your uploaded data and results will be deleted in one month. We recommend downloading your results for record backup. </p>
             <hr>
 
         </div>   
@@ -300,7 +368,6 @@ async function getStatus() {
       else {
         document.getElementById("innerStatus{{ task.task }}").innerHTML = " Done";
       document.getElementById("innerStatus{{ task.task }}").setAttribute("class", "progress-bar progress-bar-success progress-bar-striped");
-
         }
       }
 

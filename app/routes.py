@@ -9,6 +9,7 @@ from app.models import User, Task, Notification
 from app.shared.utils import subprocess_popen, _run_command
 import json
 
+
 import sys
 
 @app.before_request
@@ -24,7 +25,6 @@ def _initial_user_pid(p_id):
         db.session.commit()
         print("pid none")
         return
-    print("pid in db")
 
 
 current_u = None
@@ -70,8 +70,8 @@ def set_check_init():
 def index():
     set_check_init()
 
-    #x = "{} {}".format(sys.version, sys.path)
-    #flash('{} {}'.format(session['user_info'], x))
+    # x = "{} {}".format(sys.version, sys.path)
+    # flash('{} {}'.format(session['user_info'], x))
     # flash('{}'.format(app.config['DATA_INPUT_DIR']))
     return render_template('index.html', title='ClusterV-Web')
 
@@ -98,17 +98,28 @@ def results():
     set_check_init()
     # flash('{}'.format(session['user_info']))
 
-    listOfBAM = os.listdir(app.config['DATA_INPUT_DIR'])  
-    listOfBAM = [i for i in listOfBAM if i[-4:]=='.bam']
+    listOfBAM = os.listdir(app.config['DATA_OUTPUT_DIR'])  
+    listOfBAM = [i+".bam" for i in listOfBAM if i[:2]=="cv"]
 
     p_id = session['user_info']['user_g_id']
     current_u = get_current_user(p_id)
-    print("this {}".format(current_u))
     all_report = []
     is_have_report = False
+    print("check results", listOfBAM)
     for _idx, _bam_f in enumerate(listOfBAM):
         _sample_id=_bam_f.split('.')[0]
         _current_out_dir = "{}/{}/".format(app.config['DATA_OUTPUT_DIR'], _sample_id)
+
+        # read config
+        _all_config = {}
+        _config_f = "{}/{}/config.json".format(app.config['DATA_OUTPUT_DIR'], _sample_id)
+        try:
+            if os.path.exists(_config_f):
+                with open(_config_f, "r") as F:
+                    _all_config = json.load(F) 
+        except:
+            pass
+        print(_all_config)
 
         # get table
         _sybtype_tsv = "{}/consensus/all_info.tsv".format(_current_out_dir)
@@ -193,7 +204,7 @@ def results():
             if _k in lst_of_report:
                 get_d_report[_i] = "{}/{}/{}".format(p_id, _sample_id, _k)
 
-        all_report.append({"id": _sample_id, "png": get_d_report, "table_subtype": _subtype_report, "mutation_report":_mutation_report})
+        all_report.append({"id": _sample_id, "png": get_d_report, "table_subtype": _subtype_report, "mutation_report":_mutation_report, "all_config": _all_config})
         # print(all_report)
 
 
@@ -211,7 +222,7 @@ def results():
                 current_u.stop_all_tasks()
                 current_u.delete_all_task()
                 db.session.commit()
-                return redirect('/upload_data')
+                return redirect(url_for('upload_data'))
         elif request.form['action'] == 'Check running stage':
             pass
         else:
@@ -226,7 +237,7 @@ def analysis():
     set_check_init()
 
     listOfBAM = os.listdir(app.config['DATA_INPUT_DIR'])  
-    listOfBAM = [i for i in listOfBAM if i[-4:]=='.bam']
+    listOfBAM = [i for i in listOfBAM if i[:2]=="cv" and i[-4:]=='.bam']
 
     form = Upload_setting()
     if request.method == 'POST':
@@ -243,7 +254,7 @@ def analysis():
             db.session.commit()
             db.session.refresh(current_u)
 
-        return redirect('/results')
+        return redirect(url_for('results'))
 
     return render_template('analysis.html', title='configuration', form=form, listOfBAM=listOfBAM)
 
@@ -251,20 +262,23 @@ def analysis():
 
 def run_clusterv_task(_config):
     all_f = os.listdir(app.config['DATA_INPUT_DIR'])  
-    listOfBAM = [i for i in all_f if i[-4:]=='.bam']
+    listOfBAM = [i for i in all_f if i[:2]=="cv" and  i[-4:]=='.bam']
 
     p_id = session['user_info']['user_g_id']
     current_u = get_current_user(p_id)
 
     print('run_task, pid {}'.format(current_u.id))
     for _idx, _bam_f in enumerate(listOfBAM):
-            _sample_id=_bam_f.split('.')[0]
-            _current_out_dir = "{}/{}/".format(app.config['DATA_OUTPUT_DIR'], _sample_id)
-            _current_static_out_dir = "{}/{}/".format(app.config['STATIC_OUTPUT_DIR'], _sample_id)
+        _sample_id=_bam_f.split('.')[0]
+        _current_out_dir = "{}/{}/".format(app.config['DATA_OUTPUT_DIR'], _sample_id)
+        _current_static_out_dir = "{}/{}/".format(app.config['STATIC_OUTPUT_DIR'], _sample_id)
 
-            current_u.launch_task("run_clusterv", _sample_id, _sample_id, _bam_f, app.config['DATA_INPUT_DIR'], _current_out_dir, _current_static_out_dir, app.config['CV_PATH'], _config)
-            db.session.commit()
-            db.session.refresh(current_u)
+        cmd = "mkdir -p {}; cp {}/config.json {}".format(_current_out_dir, app.config['DATA_INPUT_DIR'], _current_out_dir)
+        _run_command(cmd)
+
+        current_u.launch_task("run_clusterv", _sample_id, _sample_id, _bam_f, app.config['DATA_INPUT_DIR'], _current_out_dir, _current_static_out_dir, app.config['CV_PATH'], _config)
+        db.session.commit()
+        db.session.refresh(current_u)
     return 0
 
 def allowed_file_ext(filename, ext):
@@ -278,6 +292,7 @@ def upload_data():
 
     all_f = os.listdir(app.config['DATA_INPUT_DIR'])  
     listOfBAM = [i for i in all_f if i[-4:]=='.bam']
+    listOfjson = [i for i in all_f if i[-4:]=='.json']
 
     _file_ref = [i for i in all_f if i[-3:]=='.fa' or i[-3:]=='sta']
     _file_ref = None if len(_file_ref) < 1 else _file_ref[0]
@@ -287,6 +302,10 @@ def upload_data():
     # read config
     all_config = {}
     _config_f = "{}/config.json".format(app.config['DATA_INPUT_DIR'])
+    try:
+        _config_f = "{}/{}".format(app.config['DATA_INPUT_DIR'], listOfjson[0])
+    except:
+        pass
     if os.path.exists(_config_f):
         with open(_config_f, "r") as F:
             all_config = json.load(F) 
@@ -308,7 +327,7 @@ def upload_data():
 
     #print(_file_ref, _file_bed)
     if request.method == 'POST':
-        if request.form['submit'] == 'Configure setting':
+        if request.form['submit'] == 'Apply Configuration':
             # upload ref
             try:
                 file = request.files['input_fasta_f']
@@ -370,23 +389,37 @@ def upload_data():
                 indel_l = int(request.form.get('indel_l'))
                 top_k = int(request.form.get('top_k'))
                 n_min_supports = int(request.form.get('n_min_supports'))
-                flye_genome_size = request.form.get('flye_genome_size')
                 hivdb_url = request.form.get('hivdb_url')
+
+                min_af = float(request.form.get('min_af'))
+                n_max_coverage = int(request.form.get('n_max_coverage'))
+                n_of_read_for_consensus = request.form.get('n_of_read_for_consensus')
+                flye_nano_type = request.form.get('flye_nano_type')
+                flye_genome_size = request.form.get('flye_genome_size')
+
                 if indel_l < 0:
                     flash('Error: requires indel_l >= 0')
-                    return redirect('/upload_data#g_info')
+                    return redirect(url_for('upload_data')+'#g_info')
 
                 if top_k < 2:
                     flash('Error: requires top_k >= 2')
-                    return redirect('/upload_data#g_info')
+                    return redirect(url_for('upload_data')+'#g_info')
 
                 if n_min_supports < 1:
                     flash('Error: requires n_min_supports >= 1')
-                    return redirect('/upload_data#g_info')
+                    return redirect(url_for('upload_data')+'#g_info')
 
                 if hivdb_url != "" and "sierra" not in hivdb_url:
                     flash('Error: hivdb_url {} invalid'.format(hivdb_url))
-                    return redirect('/upload_data#g_info')
+                    return redirect(url_for('upload_data')+'#g_info')
+
+                if min_af < 0 or min_af > 1:
+                    flash('Error: requires min_af in (0, 1)')
+                    return redirect(url_for('upload_data')+'#g_info')
+
+                if n_max_coverage > 50000:
+                    flash('Error: requires n_max_coverage > 50000')
+                    return redirect(url_for('upload_data')+'#g_info')
 
                 _config = {
                 "indel_l": indel_l,
@@ -395,35 +428,79 @@ def upload_data():
                 "flye_genome_size": flye_genome_size,
                 "hivdb_url": hivdb_url,
                 "file_ref": _file_ref,
-                "file_bed": _file_bed
+                "file_bed": _file_bed,
+                "min_af": min_af,
+                "n_max_coverage": n_max_coverage,
+                "n_of_read_for_consensus": n_of_read_for_consensus,
+                "flye_nano_type": flye_nano_type
                 }
                 jo = json.dumps(_config, indent=4)
+
+                all_f = os.listdir(app.config['DATA_INPUT_DIR'])  
+                listOfjson = [i for i in all_f if i[-4:]=='json']
+                print(listOfjson)
+                _json_i = 0
+                try:
+                    _json_i = int(len([i for i in listOfjson if "_" in i]))
+                except:
+                    pass
+                _json_i += 1
+                with open("{}/{}_config.json".format(app.config['DATA_INPUT_DIR'], _json_i), "w") as F:
+                    F.write(jo)
                 with open("{}/config.json".format(app.config['DATA_INPUT_DIR']), "w") as F:
                     F.write(jo)
             except:
                 flash('Error: Configuration invalid, please check file type accordingly')
-                return redirect('/upload_data#g_info')
+                return redirect(url_for('upload_data')+'#g_info')
             
-            return redirect('/upload_data#3_run')
+
+            all_f = os.listdir(app.config['DATA_INPUT_DIR'])  
+            listOfjson = [i for i in all_f if i[-4:]=='json']
+            print(listOfjson)
+            _json_i = 0
+            try:
+                _json_i = int(len([i for i in listOfjson if "_" in i]))
+            except:
+                pass
+
+            listOfBAM = [i for i in all_f if i[:2] != "cv" and i[-4:]=='.bam']
+            #n_cv = len([i for i in all_f if i[:2] == "cv" and i[-4:]=='.bam'])
+            print(_json_i)
+            n_cv = _json_i
+            for _idx, _bam in enumerate(listOfBAM):
+                print(_bam)
+                if _bam[:2] == "cv":
+                    _bam = "_".join(_bam.split("_")[1:])
+                cmd = "cp {}/{} {}/cv{}_{}".format(app.config['DATA_INPUT_DIR'], _bam, app.config['DATA_INPUT_DIR'], n_cv+_idx, _bam)
+                _run_command(cmd)
+            return redirect(url_for('upload_data')+'#3_run')
         elif request.form['submit'] == 'Run analysis':
             if all_config == {}:
                 flash('Error: no configuration found, please set the "Configue setting" first')
-                return redirect('/upload_data#g_info')
+                return redirect(url_for('upload_data')+'#g_info')
 
             if all_config["bed_contig"] != all_config["ref_contig"]:
                 flash('Error: config name in fasta and BED are different, please reupload reference or BED file.')
-                return redirect('/upload_data#g_info')
+                return redirect(url_for('upload_data')+'#g_info')
 
             # check if input is valid
             if len(listOfBAM) < 1:
                 flash('no BAM file uploaded, please upload your BAMs before runing analysis')
-                redirect('/upload_data')
+                redirect(url_for('upload_data'))
 
             # run clusterv task
             run_clusterv_task(all_config)
-            return redirect('/results')
+            return redirect(url_for('results'))
         elif request.form['submit'] == 'Upload data':
-            return redirect('/upload_data#2_config')
+            return redirect(url_for('upload_data')+'#2_config')
+
+   
+    n_listOfBAM = [i for i in listOfBAM if i[:2]=="cv" and i[-4:]=='.bam']
+    print(n_listOfBAM)
+    if len(n_listOfBAM) != 0:
+        listOfBAM = n_listOfBAM
+    else:
+        all_config = None
 
     return render_template('update_data.html', title='Upload data', listOfBAM=listOfBAM, file_ref=_file_ref, file_bed=_file_bed, all_config=all_config)
 
@@ -431,8 +508,8 @@ def upload_data():
 def download_all_results():
     set_check_init()
 
-    listOfBAM = os.listdir(app.config['DATA_INPUT_DIR'])  
-    listOfBAM = [i for i in listOfBAM if i[-4:]=='.bam']
+    listOfBAM = os.listdir(app.config['DATA_OUTPUT_DIR'])  
+    listOfBAM = [i+".bam" for i in listOfBAM if i[:2]=="cv"]
     flies_lst = []
     for _idx, _bam_f in enumerate(listOfBAM):
         _sample_id=_bam_f.split('.')[0]
@@ -472,7 +549,7 @@ def delete_all_results():
         return redirect(url_for('results'))
     except Exception as e:
         return f"Error in deleting files: {e}"
-    redirect('/results')
+    redirect(url_for('results'))
 
 
 
@@ -482,7 +559,7 @@ def remove_bam():
 
     try:
         _input_dir = app.config['DATA_INPUT_DIR']
-        cmd = "rm -rf {}/*".format(_input_dir)
+        cmd = "rm -rf {}/*.bam*".format(_input_dir)
         _run_command(cmd)
         return redirect(url_for('upload_data'))
     except Exception as e:
@@ -494,7 +571,7 @@ def getStatus():
     set_check_init()
 
     listOfBAM = os.listdir(app.config['DATA_INPUT_DIR'])  
-    listOfBAM = [i for i in listOfBAM if i[-4:]=='.bam']
+    listOfBAM = [i for i in listOfBAM if i[:2]=="cv" and i[-4:]=='.bam']
 
     p_id = session['user_info']['user_g_id']
     current_u = get_current_user(p_id)

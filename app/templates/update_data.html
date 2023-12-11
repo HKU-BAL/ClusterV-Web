@@ -20,7 +20,7 @@
 <div class="container-md">
     <p class="h2" > 1. Upload BAM data</p>
     <p> Please upload your BAM files here, the file size is limited to 2000 MiB (~500,000 reads).</p>
-    <form method="POST" action='/upload_files' class="dropzone dz-clickable" 
+    <form method="POST" action={{url_for("upload_files")}} class="dropzone dz-clickable" 
           id="dropper" enctype="multipart/form-data">
     </form>
 
@@ -34,7 +34,7 @@
     <hr >
     <p class="h2" id="2_config" data-bs-spy="scroll" > 2. Configuration</p>
 
-    <div class="alert alert-info" role="alert"> Optional, generally it is safe to leave all configurations as default, but should note the "Regional BED file" option if your date only covered a specific region.</div>
+    <div class="alert alert-info" role="alert"> Optional, generally it is safe to leave all configurations as default, but should note the "Regional BED file" option if your data only covered a specific region. Check this <a href="https://github.com/HKU-BAL/ClusterV/blob/main/docs/options.md" target="_blank">page</a> for more information of ClusterV's options.</div>
 <form action="" method="post"  enctype="multipart/form-data">
    <div class="form-group row">
     <div class="col-sm-12 ">
@@ -46,7 +46,7 @@
 
   <div class="form-group row">
     <div class="col-sm-12 ">
-    <label> &#9654; Regional BED file. <br> Leave this blank when using the whole reference regions. Please make sure to provide this BED file if your bam files are from amplicon sequencing.</label>
+        <label> &#9654; Regional BED file. <br> Leave this blank when using the whole reference regions. Please make sure to provide this BED file if your bam files are from amplicon sequencing.</label>
 
 
 
@@ -83,25 +83,54 @@
   </div>
 
 
-  
-  <div class="form-group row">
-
-    <label class="col-sm-5 col-form-label"> &#9654; Flye --genome-size for generating consensus. <br> (STRING, requires using a size lower as defined in the BED file)</label>
-    <div class="col-sm-2">
-      <input type="flye_genome_size" class="form-control" name="flye_genome_size" value="5k">
-    </div>
-  </div>
-
 <div class="form-group row">
 
-    <label class="col-sm-5 col-form-label">&#9654; hivdb URL for query. <br> (STRING)</label>
+    <label class="col-sm-5 col-form-label">&#9654; hivdb URL for query. <br> (STRING, EMPTY, using local HIVDB, e.g. http://localhost:8111/sierra/rest/graphql, check more information <a href="https://github.com/hivdb/sierra" target="_blank">here</a>)</label>
     <div class="col-sm-2">
       <input type="hivdb_url" class="form-control" name="hivdb_url" value="">
     </div>
   </div>
 
+<div class="form-group row">
+
+    <label class="col-sm-5 col-form-label">&#9654; [EXPERIMENTAL] minimum AF when cluastering <br> (FLOAT, recommend using 0.05, required (0, 1)) </label>
+    <div class="col-sm-2">
+      <input type="min_af" class="form-control" name="min_af" value="0.05">
+    </div>
+</div>
+
+<div class="form-group row">
+    <label class="col-sm-5 col-form-label">&#9654; [EXPERIMENTAL] maximum read for clustering <br> (INT, 10000, recommend using 10000, reuqired < 50000) </label>
+    <div class="col-sm-2">
+      <input type="n_max_coverage" class="form-control" name="n_max_coverage" value="10000">
+    </div>
+</div>
+
+<div class="form-group row">
+    <label class="col-sm-5 col-form-label">&#9654; [EXPERIMENTAL] number of original read for generating consensus <br> (INT, 1000, recommend using 1000) </label>
+    <div class="col-sm-2">
+      <input type="n_of_read_for_consensus" class="form-control" name="n_of_read_for_consensus" value="1000">
+    </div>
+</div>
+
   <div class="form-group row">
-            <div align="center"><input id="submit" name="submit" type="submit" value="Configure setting" class="btn btn-success btn-lg"> </div>
+
+    <label class="col-sm-5 col-form-label"> &#9654; [EXPERIMENTAL] Flye (long-read assembler) --genome-size for generating consensus. <br> (STRING, requires using a size lower as defined in the BED file)</label>
+    <div class="col-sm-2">
+      <input type="flye_genome_size" class="form-control" name="flye_genome_size" value="5k">
+    </div>
+  </div>
+  <div class="form-group row">
+
+    <label class="col-sm-5 col-form-label"> &#9654; [EXPERIMENTAL] Flye option for different ONT type <br> (STRING, nano-hq for ONT high-quality reads (Guppyy5+ SUP or Q20)  or "nano-raw" for ONT regular reads (pre-Guppy5))</label>
+    <div class="col-sm-2">
+      <input type="flye_nano_type" class="form-control" name="flye_nano_type" value="nano-raw">
+    </div>
+  </div>
+
+
+  <div class="form-group row">
+            <div align="center"><input id="submit" name="submit" type="submit" value="Apply Configuration" class="btn btn-success btn-lg"> </div>
   </div>
 
 {% if all_config.file_ref %}
@@ -172,13 +201,31 @@
                             <li class="list-group-item"> n_min_supports: {{ all_config.n_min_supports }}</li>
                             {% endif %}
 
-                            {% if all_config.flye_genome_size %}
-                            <li class="list-group-item"> flye_genome_size: {{ all_config.flye_genome_size }}</li>
-                            {% endif %}
 
                             {% if all_config.hivdb_url %}
                             <li class="list-group-item"> hivdb_url: {{ all_config.hivdb_url }}</li>
                             {% endif %}
+
+                            {% if all_config.min_af%}
+                            <li class="list-group-item"> min_af: {{ all_config.min_af}}</li>
+                            {% endif %}
+
+                            {% if all_config.n_max_coverage%}
+                            <li class="list-group-item"> n_max_coverage: {{ all_config.n_max_coverage}}</li>
+                            {% endif %}
+
+                            {% if all_config.n_of_read_for_consensus%}
+                            <li class="list-group-item"> n_of_read_for_consensus: {{ all_config.n_of_read_for_consensus}}</li>
+                            {% endif %}
+
+                            {% if all_config.flye_genome_size %}
+                            <li class="list-group-item"> flye_genome_size: {{ all_config.flye_genome_size }}</li>
+                            {% endif %}
+
+                            {% if all_config.flye_nano_type%}
+                            <li class="list-group-item"> flye_nano_type: {{ all_config.flye_nano_type}}</li>
+                            {% endif %}
+
 
                             </ul> 
                             </div>
@@ -189,7 +236,7 @@
             </div>
             <div class="row">
                 <div class="col-md-2">
-                    <a href="{{ url_for('remove_bam') }}" id="remove" class="btn btn-danger btn-sm">Remove all files</a>
+                    <a href="{{ url_for('remove_bam') }}" id="remove" class="btn btn-danger btn-sm">Set new configuration, and remove all files</a>
                 </div>
             </div>
 

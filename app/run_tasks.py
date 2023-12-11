@@ -69,6 +69,14 @@ def run_clusterv(pid, sample_id, bam_fn, input_dir, output_dir, current_static_o
     _bed_f = "{}/{}".format(input_dir, _config['file_bed'])
     _run_threads = "8"
 
+
+    ## creating bam index
+    #cmd = 'cp {}/config.json {}'.format(input_dir, output_dir)
+    #try:
+    #    _run_command(cmd)
+    #except:
+    #    _set_task_progress("error copy config files")
+
     # creating bam index
     cmd = 'samtools index %s' % (input_dir+bam_fn)
     try:
@@ -94,7 +102,6 @@ def run_clusterv(pid, sample_id, bam_fn, input_dir, output_dir, current_static_o
     
     cmd = "python {} run_initial_call {} --bam_fn {} --sample_id {} --out_dir {} --indel_l {}".format(CV_path, 
                 COMMON_OPT, input_dir+bam_fn, sample_id, output_dir, _config['indel_l'])
-    print(cmd)
 
     try:
         _run_command(cmd)
@@ -116,7 +123,9 @@ def run_clusterv(pid, sample_id, bam_fn, input_dir, output_dir, current_static_o
     
 
 
-    _min_af = 0.05
+    _min_af = _config['min_af']
+    _n_max_coverage = _config['n_max_coverage']
+
     _top_k = _config['top_k']
     _n_min_supports = _config['n_min_supports']
 
@@ -124,9 +133,9 @@ def run_clusterv(pid, sample_id, bam_fn, input_dir, output_dir, current_static_o
     _subtype_parallel = "2"
 
     # run clustering
-    cmd = "python {} run_ClusterV {} --bam {}_f.bam --vcf {}.v/out.vcf --out_dir {}/clustering --sample_id {} --min_af {} --n_min_supports {} --top_k {} --clair_ensemble_threads {} --subtype_parallel {} > {}/run_clustering.log".format(
+    cmd = "python {} run_ClusterV {} --bam {}_f.bam --vcf {}.v/out.vcf --out_dir {}/clustering --sample_id {} --min_af {} --n_min_supports {} --top_k {} --clair_ensemble_threads {} --subtype_parallel {} --n_max_coverage {} > {}/run_clustering.log".format(
             CV_path, COMMON_OPT, output_dir+sample_id, output_dir+sample_id, output_dir, sample_id, _min_af, _n_min_supports, _top_k,
-            _clair_ensemble_threads, _subtype_parallel, output_dir)
+            _clair_ensemble_threads, _subtype_parallel, _n_max_coverage, output_dir)
 
     try:
         _run_command(cmd)
@@ -138,11 +147,16 @@ def run_clusterv(pid, sample_id, bam_fn, input_dir, output_dir, current_static_o
 
     COMMON_OPT="--threads {} --ref_fn {} --bed_fn {}".format(_run_threads, _ref_f, _bed_f)
     _hivdb_url = _config['hivdb_url']
+
+    _n_of_read_for_consensus = _config['n_of_read_for_consensus']
+    _flye_genome_size = _config['flye_genome_size']
+    _flye_nano_type = _config['flye_nano_type']
+
     if len(_hivdb_url) > 1:
         COMMON_OPT += " --hivdb_url {}".format(_hivdb_url)
-    _flye_genome_size = _config['flye_genome_size']
-    cmd = "python {} get_consensus {} --out_dir {}/consensus --flye_genome_size {} --tar_tsv {}/clustering/all_clusters_info.tsv > {}/get_consensus.log".format(
-            CV_path, COMMON_OPT, output_dir, _flye_genome_size, output_dir, output_dir)
+
+    cmd = "python {} get_consensus {} --out_dir {}/consensus --flye_genome_size {} --flye_nano_type {} --n_of_read_for_consensus {} --tar_tsv {}/clustering/all_clusters_info.tsv > {}/get_consensus.log".format(
+            CV_path, COMMON_OPT, output_dir, _flye_genome_size, _flye_nano_type, _n_of_read_for_consensus, output_dir, output_dir)
     
     try:
         _run_command(cmd)
