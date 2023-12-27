@@ -36,7 +36,7 @@ A pre-built docker image is available [here](https://hub.docker.com/r/hkubal/clu
 ```
 docker run --name clustervw -d -p 8000:5000 --rm hkubal/clustervw:latest
 
-# the website should be available at 127.0.0.1:8000, 
+# the website should be available at your web browser via address of 127.0.0.1:8000, 
 # or [YOUR IP]:8000, you can check your IP via `ifconfig`
 
 # close the website by
