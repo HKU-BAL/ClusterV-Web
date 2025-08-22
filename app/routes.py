@@ -65,8 +65,8 @@ def set_check_init():
         print(p_id)
     return
 
-@app.route('/')
-@app.route('/index')
+@app.route('/ClusterVW/')
+@app.route('/ClusterVW/index')
 def index():
     set_check_init()
 
@@ -76,7 +76,7 @@ def index():
     return render_template('index.html', title='ClusterV-Web')
 
 
-@app.route('/upload_files', methods=['POST'])
+@app.route('/ClusterVW//upload_files', methods=['POST'])
 def upload_files():
     set_check_init()
     # flash('{}'.format(session['user_info']))
@@ -93,7 +93,7 @@ def upload_files():
     return '', 204
 
 
-@app.route('/results', methods=['GET', 'POST'])
+@app.route('/ClusterVW/results', methods=['GET', 'POST'])
 def results():
     set_check_init()
     # flash('{}'.format(session['user_info']))
@@ -232,7 +232,7 @@ def results():
     
     
 
-@app.route('/analysis', methods=['GET', 'POST'])
+@app.route('/ClusterVW//analysis', methods=['GET', 'POST'])
 def analysis():
     set_check_init()
 
@@ -286,7 +286,7 @@ def allowed_file_ext(filename, ext):
            filename.rsplit('.', 1)[1] in ext
 
 
-@app.route('/upload_data', methods=['GET', 'POST'])
+@app.route('/ClusterVW//upload_data', methods=['GET', 'POST'])
 def upload_data():
     set_check_init()
 
@@ -476,7 +476,7 @@ def upload_data():
             return redirect(url_for('upload_data')+'#3_run')
         elif request.form['submit'] == 'Run analysis':
             if all_config == {}:
-                flash('Error: no configuration found, please set the "Configue setting" first')
+                flash('Error: no configuration found, please set the "Apply Configuration')
                 return redirect(url_for('upload_data')+'#g_info')
 
             if all_config["bed_contig"] != all_config["ref_contig"]:
@@ -504,7 +504,7 @@ def upload_data():
 
     return render_template('update_data.html', title='Upload data', listOfBAM=listOfBAM, file_ref=_file_ref, file_bed=_file_bed, all_config=all_config)
 
-@app.route('/download_all_results')
+@app.route('/ClusterVW//download_all_results')
 def download_all_results():
     set_check_init()
 
@@ -524,14 +524,14 @@ def download_all_results():
     _run_command(cmd)
     return send_file(tar_f, as_attachment=True)
 
-@app.route('/download_example_bed')
+@app.route('/ClusterVW//download_example_bed')
 def download_example_bed():
     set_check_init()
     tar_f = "{}/HIV_1_amplicon_region.bed".format(app.config['APP_DATA_PATH'])
     return send_file(tar_f, as_attachment=True)
 
 
-@app.route('/download_example_data')
+@app.route('/ClusterVW//download_example_data')
 def download_example_data():
     set_check_init()
     tar_f = "{}/clusterv_example.zip".format(app.config['APP_DATA_PATH'])
@@ -539,7 +539,7 @@ def download_example_data():
 
 
 
-@app.route('/delete_all_results')
+@app.route('/ClusterVW//delete_all_results')
 def delete_all_results():
     set_check_init()
     try:
@@ -553,7 +553,7 @@ def delete_all_results():
 
 
 
-@app.route('/remove_bam')
+@app.route('/ClusterVW//remove_bam')
 def remove_bam():
     set_check_init()
 
@@ -565,7 +565,7 @@ def remove_bam():
     except Exception as e:
         return f"Error in deleting files: {e}"
 
-@app.route('/status', methods=['GET'])
+@app.route('/ClusterVW//status', methods=['GET'])
 def getStatus():
 
     set_check_init()

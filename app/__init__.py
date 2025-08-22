@@ -8,12 +8,14 @@ from redis import Redis
 import rq
 
 
-app = Flask(__name__, static_url_path='/static', static_folder='static')
+app = Flask(__name__, static_url_path='/ClusterVW/static', static_folder='static')
 
 bootstrap = Bootstrap(app)
 app.config.from_object(Config)
 
 app.config['MAX_CONTENT_LENGTH'] = 1024 * 1024 * 400
+
+app.config['APPLICATION_ROOT'] = '/ClusterVW'
 
 db = SQLAlchemy(app, session_options={'expire_on_commit': False})
 
