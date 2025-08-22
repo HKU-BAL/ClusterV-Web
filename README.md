@@ -35,6 +35,7 @@ A pre-built docker image is available [here](https://hub.docker.com/r/hkubal/clu
 
 ```
 docker run --name clustervw -d -p 8000:5000 --rm hkubal/clustervw:latest
+#docker run --name clustervw -d -p 8000:5000 --rm hkubal/clustervw:v0.5 --cpus=8  --memory-swap=16g
 
 # the website should be available at 127.0.0.1:8000, 
 # or [YOUR IP]:8000, you can check your IP via `ifconfig`
@@ -59,6 +60,7 @@ docker build -f ./Dockerfile -t hkubal/clustervw:latest .
 
 # run clustervw docker image like 
 docker run --name clustervw -d -p 8000:5000 --rm hkubal/clustervw:latest
+#docker run --name clustervw -d -p 8000:5000 --rm hkubal/clustervw:v0.5 --cpus=8  --memory-swap=16g
 
 # the website should be available at your web browser via address of 127.0.0.1:8000, or YOUR IP:8000
 # you can check your IP via `ifconfig`

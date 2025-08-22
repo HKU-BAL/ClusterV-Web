@@ -331,7 +331,7 @@ async function getStatus() {
   let get;
   
   try {
-    const res = await fetch("/status");
+    const res = await fetch("/ClusterVW/status");
     get = await res.json();
   } catch (e) {
     console.error("Error: ", e);

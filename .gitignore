@@ -9,3 +9,4 @@ app/templates/update_data_original.html
 web_uplad_t/
 web_upload_t/
 app/static/
+.*
